@@ -1,0 +1,22 @@
+name: Amber APK
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -fsSL --retry 3 -o a.zip "https://drive.google.com/uc?export=download&id=1NUU5Rr7j_zteZZO-tvizbcKu0wNpkAiY"
+          unzip -q a.zip
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: subosito/flutter-action@v2
+        with: {flutter-version: '3.47.9', channel: stable, cache: true}
+      - run: |
+          cd amber
+          flutter pub get
+          flutter build apk --release
+      - run: cp amber/build/app/outputs/flutter-apk/app-release.apk Amber-1.0.0.apk
+      - uses: softprops/action-gh-release@v2
+        with: {tag_name: v1.0.0, files: Amber-1.0.0.apk}
