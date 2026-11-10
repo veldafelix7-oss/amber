@@ -16,6 +16,13 @@ jobs:
           cd amber
           flutter pub get
           flutter build apk --release
-      - run: cp amber/build/app/outputs/flutter-apk/app-release.apk Amber-1.0.2.apk
+      - id: ver
+        run: |
+          V=$(grep '^version:' amber/pubspec.yaml | sed 's/version: //' | cut -d+ -f1)
+          echo "v=$V" >> "$GITHUB_OUTPUT"
+      - run: cp amber/build/app/outputs/flutter-apk/app-release.apk "Amber-${{ steps.ver.outputs.v }}.apk"
       - uses: softprops/action-gh-release@v2
-        with: {tag_name: v1.0.2, name: Amber 1.0.2, files: Amber-1.0.2.apk}
+        with:
+          tag_name: v${{ steps.ver.outputs.v }}
+          name: Amber ${{ steps.ver.outputs.v }}
+          files: Amber-${{ steps.ver.outputs.v }}.apk
